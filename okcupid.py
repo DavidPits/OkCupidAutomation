@@ -196,8 +196,8 @@ def main():
     setup()
     email=sys.argv[1]
     pw=sys.argv[2]
-    # classifier=define_net()
-    # classifier.load_weights("weights_curr_m")
+    classifier=define_net()
+    classifier.load_weights("weights_curr_m")
     login(email,pw)
     remove_cookies_window()
     driver.get("https://www.okcupid.com/doubletake")
