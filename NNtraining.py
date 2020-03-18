@@ -95,7 +95,7 @@ def define_net():
     model.add(Activation('sigmoid'))
     model.layers[0].trainable = False
     ADAM = keras.optimizers.Adam(learning_rate=0.01)
-    model.compile(loss='binary_crossentropy', optimizer=ADAM, metrics=["accuracy"])
+    model.compile(loss='mean_squared_error', optimizer=ADAM, metrics=["accuracy"])
     return model
 
 
