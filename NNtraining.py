@@ -84,7 +84,9 @@ def predict_results(imgs, model, tags):
     predicts = model.predict(imgs)
     total=0
     current=0
-    for predict, true in zip(predicts, tags):
+    y_pred = [1 if (i > 0.5) else 0 for i in predicts]
+
+    for predict, true in zip(y_pred, tags):
         print(predict, " ", true)
         if predict==true:
           current+=1

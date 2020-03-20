@@ -181,8 +181,16 @@ def move_entities_to_rating_fold():
             continue
 
 if __name__=="__main__":
+    f= open("train.txt","r")
+    for file in f:
+        photo,rating=file.split(" ")
+        path="Organized_pics/Images/"+photo
+        rating=rating.split("\n")[0]
+        rounded_rating=int(round(float(rating)))
+        try:
+            os.rename(path,"Organized_pics/"+str(rounded_rating)+"_stars/"+photo[:-4]+str(rounded_rating)+".png")
+        except:
+            continue
 
-    move_entities_to_rating_fold()
-    #te
     # MTCNN_face_detection()
     # resizing_images_detect("faces_only")
