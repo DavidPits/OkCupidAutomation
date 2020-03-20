@@ -25,14 +25,15 @@ from matplotlib.patches import Rectangle
 eye_cascade = cv2.CascadeClassifier('haarcascade_eye.xml')
 
 def get_file_names():
-    which_tag="_0.png"
-    path="face_nlike/"
-    dir=path[:-1]
+    dir="train"
+    path=dir+"/"
+
     i=0
     for name in os.listdir(dir):
-        os.rename(path+name,path+"women"+str(i)+which_tag)
+        print(name)
+        if name[-5]=="2":
+            os.rename(path+name,path+name[:-6]+"2.png")
         i+=1
-
 def detect_faces():
     all_file_names = os.listdir("liked")
     succ = 0
@@ -108,9 +109,10 @@ def draw_faces(filename, result_list):
 
 
 
-def MTCNN_face_detection(liked_or_not):
-    final_path, path = choose_path(liked_or_not)
-    all_file_names = os.listdir(path)
+def MTCNN_face_detection():
+    final_path="pre_proccesed_pics/"
+    path="pre_proccesed_pics"
+    all_file_names = os.listdir("pre_proccesed_pics")
     detector = MTCNN()
     extract_face_NN(all_file_names, detector, final_path, path)
 
@@ -132,19 +134,21 @@ def extract_face_NN(all_file_names, detector, final_path, path):
     for file in all_file_names:
         orig = file
         file = path + "/" + file
-        pixels = cv2.imread(file, 1)
+        pixels = cv2.imread(file, 1,)
+        print(type(pixels))
+        if type(pixels)!=np.ndarray:
+            continue
         results = detector.detect_faces(pixels)
         if len(results) == 1:
             x1, y1, width, height = results[0]['box']
             x2, y2 = x1 + width, y1 + height
             face = pixels[y1:y2, x1:x2]
-            if face.size == 0:
+            if face.size < 250*250:
                 os.remove(file)
                 continue
+            cv2.imwrite("faces_only/"+orig,face)
+        os.remove(file)
 
-            cv2.imwrite(final_path + orig, face)
-        else:
-            os.remove(file)
 
 def resizing_images(likeOrNot:bool):
     final_path,path=choose_path(likeOrNot)
@@ -156,14 +160,29 @@ def resizing_images(likeOrNot:bool):
         cv2.imwrite(final_path+"/"+file,reszied)
 
 
-def resizing_images_detect():
-    final_path="current_attemp"
+def resizing_images_detect(final_path):
     all_file_names = os.listdir(final_path)
     for file in all_file_names:
         img=cv2.imread(final_path+"/"+file,1)
-        if  img.size>150*150:
-            reszied=cv2.resize(img,(150,150),interpolation=cv2.INTER_AREA)
-            cv2.imwrite(final_path+"/"+file,reszied)
-        else:
+        if  img.size>250*250:
+            rating=file[-5]
+            reszied=cv2.resize(img,(250,250),interpolation=cv2.INTER_AREA)
+            cv2.imwrite(rating+"_stars"+"/"+file,reszied)
             os.remove(final_path+"/"+file)
 
+def move_entities_to_rating_fold():
+    for ent in os.listdir("train"):
+        rating = ent[-5]
+        if rating=='p':
+            continue
+        try:
+            os.rename("train/" + ent, rating + "_stars/" + ent)
+        except:
+            continue
+
+if __name__=="__main__":
+
+    move_entities_to_rating_fold()
+    #te
+    # MTCNN_face_detection()
+    # resizing_images_detect("faces_only")
