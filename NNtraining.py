@@ -96,15 +96,45 @@ def predict_results(imgs, model, tags):
     model.save_weights("weights_curr_m")
 
 
+def VGG_Regression_Net(drop_rate=0.5):
+
+    model = applications.VGG19(weights= "imagenet", include_top = False, input_shape = (250, 250, 3))
+    top_model = Sequential()
+    top_model.add(Flatten(input_shape=model.output_shape[1:]))
+    top_model.add(Dense(128, activation='relu'))
+    top_model.add(Dropout(0.3))
+    top_model.add(Dense(1))
+    new_model = Sequential()  # new model
+    for layer in model.layers:
+        new_model.add(layer)
+
+    new_model.add(top_model)  # now this works
+    for layer in model.layers:
+        layer.trainable = False
+    new_model.compile(loss='mean_squared_error',
+                      optimizer='adam')
+    print(new_model.summary())
+
+    return new_model
+def predict_results_regression(imgs, model, tags):
+    predicts = model.predict(imgs)
+    total=0
+    current=0
+
+    for predict, true in zip(predicts, tags):
+        print(predict, " ", true, "Difference : ",true-predict)
+    print(current/total)
+
+    model.save_weights("weights_curr_m")
+
 def define_net(drop_rate=0.5):
 
     model = applications.VGG19(weights= "imagenet", include_top = False, input_shape = (250, 250, 3))
     top_model = Sequential()
     top_model.add(Flatten(input_shape=model.output_shape[1:]))
     top_model.add(Dense(128, activation='relu'))
-    top_model.add(Dropout(0.5))
-    top_model.add(Dense(1, activation='sigmoid'))
-    new_model = Sequential()  # new model
+    top_model.add(Dense(1))
+    new_model = Sequential()  # new     model
     for layer in model.layers:
         new_model.add(layer)
 
